@@ -1,0 +1,18 @@
+PACKAGEDIR = @prefix@/..
+
+all : chmod check
+
+chmod:
+	chmod 755 @prefix@/ptbconv ;
+
+html:
+	rd2 @prefix@/readme.rd > @prefix@/readme.html ; 
+
+check:
+	@prefix@/ptbconv -V < @prefix@/sample ;
+	@prefix@/ptbconv -VD < @prefix@/sample ;
+	@prefix@/ptbconv -HTVD < @prefix@/sample ;
+
+clean:
+	rm -f @prefix@/ptbconv ;
+	rm -f @prefix@/readme.rd ; 

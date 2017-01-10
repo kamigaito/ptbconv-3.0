@@ -1,0 +1,24 @@
+# Process this file with autoconf to produce a configure script.
+AC_INIT(ptbconv.in)
+
+# Checks for programs.
+AC_PATH_PROG(SH, sh)
+AC_PATH_PROG(RUBY, ruby)
+AC_SUBST(VERSION)
+if test -z "$RUBY" ; then
+	echo "can not find ruby interpriter, can't use this package" ;
+	exit;
+fi
+prefix="$PWD"
+VERSION="3.0"
+
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([])
+AC_OUTPUT([ptbconv readme.rd Makefile])

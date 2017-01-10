@@ -1,0 +1,105 @@
+=begin
+
+== ((<ptbconv-3.0|URL:http://www.jaist.ac.jp/~h-yamada/software/ptbconv-3.0.tar.gz>))
+
+Converter for Penn treebank corpus. This script requires
+((<Ruby|URL:http://www.ruby-lang.org>)) 1.8.2 or later.
+
+=== How to install
+
+   % cd ptbconv-3.0/ ; 
+   % ./configure
+   % ./make
+
+=== How to use
+Run this script with -h option and see them.
+
+   % ./ptbconv -h
+
+=== Output Formats
+=== Phrase Structure Trees
+((* ASCII Tree From *))
+
+If you run this script with -V option, you can see syntactic trees on
+your terminal in ASCII forms.  None-terminal nodes are described as
+"Label<head child>" . Terminal nodes are described as
+"word/part-of-speech".
+
+      (Example)
+
+            Such/JJ-+            
+                    |               
+               a/DT-+NP<3>-+    
+                    |       
+        proposal/NN-+       
+  
+where the number "3" in "NP<3>" denotes the head child index in its
+children. In above example, "proposal/NN" is the head of
+"NP<3>". About rules of head identification, see ((<Head Rules>)).  In
+the original Penn treebank the tag "-NONE-" is annotated for gaps. If
+you want to see trees with -NONE- tags, run this script with -g
+option. (In our current implementation, if the size of the input tree
+is too large, it can not display correctly.  Please enlarge your
+terminal screen or use the higher resolution display.)
+
+((* CFG rules *))
+
+Run this script with -C option, it extracts CFG rules of the input trees. 
+For example, 
+
+     S<2> -> NP VP
+
+<n> shows the index of head constituent, i.e., the head constituent of "S" is 2nd. constituent "VP". 
+
+=== Dependency Structure Trees
+((* ASCII Tree Form *))
+
+Each node is expressed as "word/part-of-speech" forms. 
+
+    (Example)
+    
+                I/PRP-+            
+                      |               
+                      +read/VBD-+
+                      |       
+      the/DT-+        |
+             +book/NN-+       
+
+The root node of this sentence is "read/VBD". 
+
+((* List Form *))
+
+The list output form of our converter consists of three columns: word,
+POS and ((*num*)).
+
+    (Example)
+
+        I     PRP   2
+        read  VBD   -1
+        the   DT    4
+        book  NN    2
+        .     .     2
+
+where ((*num*)) denotes that the word modifies num-th word.  For example,
+in above sentence the first word "I" modifies 2nd. word "read".
+The root nodes of dependency trees are expressed as negative number
+"-1". 
+
+=== Head Rules
+
+This script converts phrase structure forms of Penn treebank into
+dependency forms using simple head rules.  These rules are almost
+similar to Collins' one (see page 238 on his ((<PhD
+dissertation|URL:http://www.ai.mit.edu/people/mcollins/publications.html>))). But
+we haven't implemented some special rules about NP and CONJP yet.  All
+our rules are expressed priority lists for each none terminal node.
+If you want to see our head rules, please run this script with -H
+option.
+ 
+The current best statistical parser, A Maximum-Entropy-Inspired Parser
+(meip) proposed by ((<Charniak|URL:http://www.cs.brown.edu/people/ec/>)), deals with some
+extended part-of-speech tags, AUX and AUXG.  If you want to convert
+the outputs of charniak's parser into our dependency forms, please use
+"-R meip" option.
+
+=end

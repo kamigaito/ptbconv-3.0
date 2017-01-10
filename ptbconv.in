@@ -1,0 +1,66 @@
+#!@RUBY@
+$prefix = '@prefix@'
+$version = '@VERSION@'
+$lib    = '%s/lib/ruby' % $prefix
+$: << $lib
+require 'getopts'
+require '%s/natural_language/corpus/penn_treebank/sparser' % $lib
+require '%s/common.rb' % $prefix
+
+unless getopts("vgthBVCDHTP", "N:", "R:", "Z:1")
+  show_help
+end
+
+show_help if $OPT_h 
+show_version if $OPT_v
+$index_of_first_word = $OPT_Z.to_i
+require '%s/trace' % $prefix if $OPT_t
+require '%s/enable_gaps' % $prefix if $OPT_g
+
+require '%s/%s' % [$prefix, $OPT_R] if $OPT_R
+show_head_rules if $OPT_H
+show_explanations_of_each_tag if $OPT_T
+DependencyStructure = NaturalLanguage::ParseTree::DependencyStructure
+
+sp = NaturalLanguage::Corpus::PennTreebank::SformParser.new
+num_of_sentences = 1
+
+begin
+  while _tree = sp.parse
+
+    if $OPT_N
+      next if num_of_sentences < $OPT_N.to_i
+      exit if num_of_sentences > $OPT_N.to_i
+    end
+    
+    puts "# %s-th sentence" % num_of_sentences if $OPT_V 
+    if (num_of_sentences % 100) == 0 
+      $stderr.print '*' 
+    elsif (num_of_sentences % 20) == 0
+      $stderr.print '.'
+    end
+    $stderr.puts " %6s sentences done." % num_of_sentences if (num_of_sentences % 500) == 0 
+    _tree = reduce_unary(_tree) 
+    _tree.post_order do |_node|
+      next if _node.terminal?
+      _node.find_head
+    end
+
+    show_bracket(_tree) if $OPT_B
+    show_cfg(_tree) if $OPT_C 
+    show_tree_path(_tree)  if $OPT_P
+    
+    if $OPT_D # converting into dependency trees
+      _tree = to_dependency(_tree) 
+      show_dependencies(_tree)
+    end
+
+    _tree.show if $OPT_V
+    
+    num_of_sentences += 1
+  end
+rescue Exception
+  puts "There are some errors in the %s-th sentence." % num_of_sentences
+  raise
+end
+$stderr.puts "\n%6s sentences done, finish." % (num_of_sentences - 1)
