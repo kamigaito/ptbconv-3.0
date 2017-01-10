@@ -3,23 +3,23 @@ $prefix = '@prefix@'
 $version = '@VERSION@'
 $lib    = '%s/lib/ruby' % $prefix
 $: << $lib
-require 'getopts'
+require 'optparse'
 require '%s/natural_language/corpus/penn_treebank/sparser' % $lib
 require '%s/common.rb' % $prefix
-
-unless getopts("vgthBVCDHTP", "N:", "R:", "Z:1")
+opts = ARGV.getopts("vgthBVCDHTP", "N:", "R:", "Z:1")
+unless opts
   show_help
 end
 
-show_help if $OPT_h 
-show_version if $OPT_v
-$index_of_first_word = $OPT_Z.to_i
-require '%s/trace' % $prefix if $OPT_t
-require '%s/enable_gaps' % $prefix if $OPT_g
+show_help if opts["h"]
+show_version if opts["v"]
+$index_of_first_word = opts["Z"].to_i
+require '%s/trace' % $prefix if opts["t"]
+require '%s/enable_gaps' % $prefix if opts["g"]
 
-require '%s/%s' % [$prefix, $OPT_R] if $OPT_R
-show_head_rules if $OPT_H
-show_explanations_of_each_tag if $OPT_T
+require '%s/%s' % [$prefix, opts["R"]] if opts["R"]
+show_head_rules if opts["H"]
+show_explanations_of_each_tag if opts["T"]
 DependencyStructure = NaturalLanguage::ParseTree::DependencyStructure
 
 sp = NaturalLanguage::Corpus::PennTreebank::SformParser.new
@@ -28,12 +28,12 @@ num_of_sentences = 1
 begin
   while _tree = sp.parse
 
-    if $OPT_N
-      next if num_of_sentences < $OPT_N.to_i
-      exit if num_of_sentences > $OPT_N.to_i
+    if opts["N"]
+      next if num_of_sentences < opts["N"].to_i
+      exit if num_of_sentences > opts["N"].to_i
     end
     
-    puts "# %s-th sentence" % num_of_sentences if $OPT_V 
+    puts "# %s-th sentence" % num_of_sentences if opts["V"] 
     if (num_of_sentences % 100) == 0 
       $stderr.print '*' 
     elsif (num_of_sentences % 20) == 0
@@ -46,16 +46,16 @@ begin
       _node.find_head
     end
 
-    show_bracket(_tree) if $OPT_B
-    show_cfg(_tree) if $OPT_C 
-    show_tree_path(_tree)  if $OPT_P
+    show_bracket(_tree) if opts["B"]
+    show_cfg(_tree) if opts["C"]
+    show_tree_path(_tree)  if opts["P"]
     
-    if $OPT_D # converting into dependency trees
+    if opts["D"] # converting into dependency trees
       _tree = to_dependency(_tree) 
       show_dependencies(_tree)
     end
 
-    _tree.show if $OPT_V
+    _tree.show if opts["V"]
     
     num_of_sentences += 1
   end
